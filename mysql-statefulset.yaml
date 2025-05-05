@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+      - name: mysql
+        image: mysql:8.0.32  # Pinned to a stable version
+        envFrom:
+        - secretRef:
+            name: mysql-secret
+        env:
+        - name: MYSQL_INNODB_BUFFER_POOL_SIZE
+          value: "1G"
+        - name: MYSQL_INNODB_LOG_FILE_SIZE
+          value: "256M"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "3Gi"  # Leave 1GB for system
+            cpu: "2"
+        livenessProbe:
+          exec:
+            command: ["sh", "-c", "mysqladmin ping -uroot -p${MYSQL_ROOT_PASSWORD}"]
+          initialDelaySeconds: 90
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["sh", "-c", "mysqladmin ping -uroot -p${MYSQL_ROOT_PASSWORD}"]
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 5
+        lifecycle:
+          postStart:
+            exec:
+              command: ["chown", "-R", "mysql:mysql", "/var/lib/mysql"]
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi

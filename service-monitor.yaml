@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mysql-servicemonitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels: { app: mysqld-exporter }
+  endpoints:
+  - port: "9104"
+    interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis-servicemonitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels: { app: redis-exporter }
+  endpoints:
+  - port: "9121"
+    interval: 15s
