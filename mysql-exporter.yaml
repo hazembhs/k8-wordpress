@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysqld-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels: { app: mysqld-exporter }
+  template:
+    metadata:
+      labels: { app: mysqld-exporter }
+    spec:
+      containers:
+      - name: mysqld-exporter
+        image: prom/mysqld-exporter:v0.15.1  # Use a specific version instead of latest
+        ports:
+        - containerPort: 9104
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "wordpress:wordpress@tcp(mysql-service.default.svc.cluster.local:3306)/wordpress"
+        args:
+        - "--config.my-cnf="  # Empty value disables .my.cnf lookup
+        - "--collect.info_schema.processlist"
+        - "--collect.info_schema.innodb_metrics"
+        - "--collect.global_status"
+        - "--collect.global_variables"
+
+---  
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysqld-exporter
+  namespace: monitoring
+spec:
+  selector: { app: mysqld-exporter }
+  ports:
+  - port: 9104
+    targetPort: 9104

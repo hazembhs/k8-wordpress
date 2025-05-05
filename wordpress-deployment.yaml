@@ -1,0 +1,67 @@
+# wordpress-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress:php8.2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: "mysql-service"
+        - name: WORDPRESS_DB_USER
+          value: "wordpress"
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+        - name: WP_REDIS_HOST
+          value: "redis-service"
+        - name: WP_REDIS_PORT
+          value: "6379"
+        - name: WP_REDIS_PASSWORD
+          value: ""
+        volumeMounts:
+        - name: wordpress-storage
+          mountPath: /var/www/html/wp-content
+        resources:
+          requests:
+            cpu: "250m"  # 0.25 CPU cores
+          limits:
+            cpu: "500m"
+      initContainers:
+      - name: install-redis-plugin
+        image: alpine:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            apk add --no-cache curl unzip && \
+            mkdir -p /var/www/html/wp-content/plugins && \
+            curl -L -o /var/www/html/wp-content/plugins/redis-cache.zip https://downloads.wordpress.org/plugin/redis-cache.2.4.3.zip && \
+            unzip -o /var/www/html/wp-content/plugins/redis-cache.zip -d /var/www/html/wp-content/plugins/
+        volumeMounts:
+        - name: wordpress-storage
+          mountPath: /var/www/html/wp-content
+      volumes:
+      - name: wordpress-storage
+        persistentVolumeClaim:
+          claimName: wordpress-pvc
+      affinity: {}
+      tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"

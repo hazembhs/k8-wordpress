@@ -1,0 +1,13 @@
+# mysql-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  clusterIP: None  # Headless service for direct Pod DNS
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
