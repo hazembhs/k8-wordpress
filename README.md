@@ -41,52 +41,44 @@ A full-stack Kubernetes setup including:
 ├── components.yaml
 ├── .my.cnf
 └── .gitignore
-🛠️ How to Deploy
+""🛠️ How to Deploy
 1. Clone the repository:
-bash
-Copy
-Edit
+```bash
+
 git clone https://github.com/hazembhs/k8-wordpress.git
 cd k8-wordpress
-2. Deploy MySQL
-bash
-Copy
-Edit
+##2. Deploy MySQL
+```bash
 kubectl apply -f mysql-secret.yaml
 kubectl apply -f mysql-pvc.yaml
 kubectl apply -f mysql-statefulset.yaml
 kubectl apply -f mysql-service.yaml
-3. Deploy Redis
-bash
-Copy
-Edit
+##Deploy Redis
+```bash
+
 kubectl apply -f redis-statefulset.yaml
 kubectl apply -f redis-service.yaml
-4. Deploy WordPress
-bash
-Copy
-Edit
+##4. Deploy WordPress
+```bash
+
 kubectl apply -f wordpress-pvc.yaml
 kubectl apply -f wordpress-deployment.yaml
 kubectl apply -f wordpress-service.yaml
 kubectl apply -f wordpress-hpa.yaml
-5. Deploy Monitoring
-bash
-Copy
-Edit
+## Deploy Monitoring
+```bash
 kubectl apply -f mysql-exporter.yaml
 kubectl apply -f redis-exporter.yaml
 kubectl apply -f service-monitor.yaml
-🌐 Access the App
+
+##🌐 Access the App
 After deploying:
 
-bash
-Copy
-Edit
+```bash
 kubectl get svc wordpress-service
 Use the EXTERNAL-IP shown to access WordPress in your browser.
 
-📊 Monitoring & Observability
+## 📊 Monitoring & Observability
 Prometheus Exporters integrated for:
 
 MySQL metrics
@@ -95,9 +87,10 @@ Redis metrics
 
 Easily integrable with Prometheus + Grafana stack for dashboards.
 
-👨‍💻 About the Author
+## 👨‍💻 About the Author
 Hi, I'm Hazem, a DevOps enthusiast with a passion for cloud-native architecture, automation, and building reliable infrastructure. This project is a reflection of my skills in Kubernetes, YAML, CI/CD practices, and scalable deployments. I'm actively seeking opportunities in DevOps/SRE roles where I can contribute to infrastructure excellence and innovation.
 
-📜 License
+## 📜 License
 Licensed under the MIT License.
 
+⭐️ If you find this project helpful or interesting, feel free to star the repo and connect with me on LinkedIn.
